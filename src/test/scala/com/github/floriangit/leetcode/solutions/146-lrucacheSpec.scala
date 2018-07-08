@@ -1,13 +1,13 @@
 import org.scalatest.FlatSpec
 
-class LruCacheSpec extends FlatSpec {
+class LRUCacheSpec extends FlatSpec {
   "An LRUCache" should "return value added to it" in {
     val cache = new LRUCache(1)
     cache.put(1, 1)
     assert(cache.get(1) == 1)
   }
 
-  "An LRUCache" should "return null when requesting unknown value" in {
+  "An LRUCache" should "return -1 when requesting unknown value" in {
     val cache = new LRUCache(1)
     assert(cache.get(1) == -1)
   }
