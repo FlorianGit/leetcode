@@ -27,24 +27,22 @@ class LRUCache(_capacity: Int) {
   }
 
   private def remove(elem: Element) = {
-    if (elem != null) {
-      if (head == elem) {
-        head = elem.next
-        elem.next.prev = head
-      } else {
-        elem.prev.next = elem.next
-      }
-      if (last == elem) {
-        last = elem.prev
-        elem.prev.next = last
-      } else {
-        elem.next.prev = elem.prev
-      }
-      elem.next = null
-      elem.prev = null
-      cache -= elem.key
-      size -= 1
+    if (head == elem) {
+      head = elem.next
+      elem.next.prev = head
+    } else {
+      elem.prev.next = elem.next
     }
+    if (last == elem) {
+      last = elem.prev
+      elem.prev.next = last
+    } else {
+      elem.next.prev = elem.prev
+    }
+    elem.next = null
+    elem.prev = null
+    cache -= elem.key
+    size -= 1
   }
 
   def get(key: Int): Int = {
