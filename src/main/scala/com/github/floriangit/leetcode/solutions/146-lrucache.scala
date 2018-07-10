@@ -15,8 +15,8 @@ class LRUCache(_capacity: Int) {
     if (head == null) {
       head = elem
       last = elem
-      elem.prev = head
-      elem.next = last
+      elem.prev = null
+      elem.next = null
     } else {
       head.prev = elem
       elem.next = head
@@ -27,17 +27,18 @@ class LRUCache(_capacity: Int) {
   }
 
   private def remove(elem: Element) = {
-    if (head == elem) {
+    if (head == elem && last == elem) {
+      head = null
+      last = null
+    } else if (head == elem && last != elem) {
       head = elem.next
-      elem.next.prev = head
-    } else {
-      elem.prev.next = elem.next
-    }
-    if (last == elem) {
+      head.prev = null
+    } else if (head != elem && last == elem) {
       last = elem.prev
-      elem.prev.next = last
+      last.next = null
     } else {
       elem.next.prev = elem.prev
+      elem.prev.next = elem.next
     }
     elem.next = null
     elem.prev = null
