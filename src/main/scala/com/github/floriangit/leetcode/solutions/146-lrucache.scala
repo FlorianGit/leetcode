@@ -1,16 +1,23 @@
 import scala.collection.mutable
 
-class LRUCache(_capacity: Int) {
-  case class Element(key: Int, var value: Int, var prev: Element, var next: Element)
+class OrderedHashMap[S, T](capacity: Int)
+{
+  case class Element(key: S, var value: T, var prev: Element, var next: Element)
+
   var head: Element = null
   var last: Element = null
-  var cache: mutable.Map[Int, Element] = new mutable.HashMap[Int, Element]()
+  var cache: mutable.Map[S, Element] = new mutable.HashMap[S, Element]()
   var size: Int = 0
 
-  println("")
-  println("new cache")
+  def apply(key: S): T = {
+    val value = cache(key).value
+    remove(key)
+    insert(key, value)
+    value
+  }
 
-  private def prepend(elem: Element) = {
+  def insert(key: S, value: T) = {
+    val elem = new Element(key, value, null, null)
     cache += elem.key -> elem
     if (head == null) {
       head = elem
@@ -24,51 +31,66 @@ class LRUCache(_capacity: Int) {
       elem.prev = head
     }
     size += 1
+    if (size > capacity) {
+      remove(last.key)
+    }
   }
 
-  private def remove(elem: Element) = {
-    if (head == elem && last == elem) {
-      head = null
-      last = null
-    } else if (head == elem && last != elem) {
-      head = elem.next
-      head.prev = null
-    } else if (head != elem && last == elem) {
-      last = elem.prev
-      last.next = null
+  def contains(key: S) = { cache contains key }
+
+  def update(key: S, value: T): Boolean = {
+    val elem = cache.getOrElse(key, null)
+    if (elem == null) {
+      false
     } else {
-      elem.next.prev = elem.prev
-      elem.prev.next = elem.next
+      remove(key)
+      elem.value = value
+      insert(key, value)
+      true
     }
-    elem.next = null
-    elem.prev = null
-    cache -= elem.key
-    size -= 1
   }
+
+  def remove(key: S) = {
+    val elem = cache.getOrElse(key, null)
+    if (elem != null) {
+      if (head == elem && last == elem) {
+        head = null
+        last = null
+      } else if (head == elem && last != elem) {
+        head = elem.next
+        head.prev = null
+      } else if (head != elem && last == elem) {
+        last = elem.prev
+        last.next = null
+      } else {
+        elem.next.prev = elem.prev
+        elem.prev.next = elem.next
+      }
+      elem.next = null
+      elem.prev = null
+      cache -= elem.key
+      size -= 1
+    }
+  }
+}
+
+class LRUCache(_capacity: Int) {
+  case class Element(key: Int, var value: Int, var prev: Element, var next: Element)
+  val ordered_cache = new OrderedHashMap[Int, Int](_capacity)
 
   def get(key: Int): Int = {
-    var elem = cache.getOrElse(key, null)
-    if (elem != null) {
-      remove(elem)
-      prepend(elem)
-      elem.value
+    if (ordered_cache contains key) {
+      ordered_cache(key)
     } else {
       -1
     }
   }
 
   def put(key: Int, value: Int) {
-    if (cache contains key) {
-      var elem = cache(key)
-      remove(elem)
-      elem.value = value
-      prepend(elem)
+    if (ordered_cache contains key) {
+      ordered_cache.update(key, value)
     } else {
-      var elem = new Element(key, value, null, null)
-      prepend(elem)
-      if (size > _capacity) {
-        remove(last)
-      }
+      ordered_cache.insert(key, value)
     }
   }
 }
