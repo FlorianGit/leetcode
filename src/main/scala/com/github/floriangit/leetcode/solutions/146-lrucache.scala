@@ -1,6 +1,5 @@
 class LRUCache(_capacity: Int) {
-  case class Element(key: Int, var value: Int, var prev: Element, var next: Element)
-  val ordered_cache = new OrderedHashMap[Int, Int](_capacity)
+  val ordered_cache = new OrderedHashMap[Int, Int](_capacity, (_, _) => true, (_, _) => false, x => x)
 
   def get(key: Int): Int = {
     if (ordered_cache contains key) {
