@@ -44,4 +44,10 @@ class LFUCacheSpec extends FlatSpec {
     cache.put(4, 4)
     assert(cache.get(2) == -1)
   }
+
+  "An LFUCache with size 0" should "not cause exceptions on get or put" in {
+    val cache = new LFUCache(0)
+    cache.put(0, 0)
+    assert(cache.get(0) == -1)
+  }
 }

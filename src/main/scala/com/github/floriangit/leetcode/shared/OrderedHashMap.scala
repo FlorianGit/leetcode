@@ -18,36 +18,38 @@ class OrderedHashMap[S, T](capacity: Int, less_than: (T, T) => Boolean, are_equa
   }
 
   def insert(key: S, value: T) = {
-    if (size == capacity) {
-      remove(last.key)
-    }
-
-    val elem = new Element(key, value, null, null)
-    cache += elem.key -> elem
-    if (head == null) {
-      head = elem
-      last = elem
-      elem.prev = null
-      elem.next = null
-    } else if (less_than(value, head.value) || are_equal(value, head.value)) {
-      head.prev = elem
-      elem.next = head
-      head = elem
-      elem.prev = head
-    } else {
-      val insert_after = getLastSmaller(value, less_than)
-      if (insert_after.next == null) {
-        last = elem
-      } else {
-        insert_after.next.prev = elem
+    if (capacity > 0) {
+      if (size == capacity) {
+        remove(last.key)
       }
-      elem.prev = insert_after
 
-      elem.next = insert_after.next
-      insert_after.next = elem
+      val elem = new Element(key, value, null, null)
+      cache += elem.key -> elem
+      if (head == null) {
+        head = elem
+        last = elem
+        elem.prev = null
+        elem.next = null
+      } else if (less_than(value, head.value) || are_equal(value, head.value)) {
+        head.prev = elem
+        elem.next = head
+        head = elem
+        elem.prev = head
+      } else {
+        val insert_after = getLastSmaller(value, less_than)
+        if (insert_after.next == null) {
+          last = elem
+        } else {
+          insert_after.next.prev = elem
+        }
+        elem.prev = insert_after
+
+        elem.next = insert_after.next
+        insert_after.next = elem
+      }
+
+      size += 1
     }
-
-    size += 1
   }
 
   private def getLastSmaller(value: T, less_than: (T, T) => Boolean) = {
